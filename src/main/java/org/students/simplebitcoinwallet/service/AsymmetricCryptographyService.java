@@ -1,4 +1,8 @@
-package org.students;
+package org.students.simplebitcoinwallet.service;
+
+import org.students.simplebitcoinwallet.exception.SerializationException;
+import org.students.simplebitcoinwallet.data.Transaction;
+import org.students.simplebitcoinwallet.data.TransactionOutput;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

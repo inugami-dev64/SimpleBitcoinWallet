@@ -1,4 +1,4 @@
-package org.students;
+package org.students.simplebitcoinwallet.exception;
 /**
  * This exception should be thrown when the underlying cryptographic provider does not support given algorithm or cryptographic parameters.
  */

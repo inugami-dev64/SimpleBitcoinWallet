@@ -1,4 +1,4 @@
-package org.students;
+package org.students.simplebitcoinwallet.exception;
 
 /**
  * Base class for cryptography exceptions.

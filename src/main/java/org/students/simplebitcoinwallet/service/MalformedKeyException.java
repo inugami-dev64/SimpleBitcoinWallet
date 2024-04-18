@@ -1,4 +1,6 @@
-package org.students;
+package org.students.simplebitcoinwallet.service;
+
+import org.students.simplebitcoinwallet.exception.GeneralCryptographyException;
 
 /**
  * Type of exception that gets thrown if cryptographic keys are encoded improperly

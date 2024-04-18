@@ -1,4 +1,4 @@
-package org.students;
+package org.students.simplebitcoinwallet.data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

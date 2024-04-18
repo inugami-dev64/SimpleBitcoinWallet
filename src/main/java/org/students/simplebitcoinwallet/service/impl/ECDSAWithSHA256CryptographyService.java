@@ -1,4 +1,9 @@
-package org.students;
+package org.students.simplebitcoinwallet.service.impl;
+
+import org.students.simplebitcoinwallet.exception.CryptoProviderNotFoundException;
+import org.students.simplebitcoinwallet.service.MalformedKeyException;
+import org.students.simplebitcoinwallet.exception.SerializationException;
+import org.students.simplebitcoinwallet.service.AsymmetricCryptographyServiceSHA256;
 
 import java.io.Serializable;
 import java.security.*;
@@ -7,7 +12,7 @@ import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 
-public class ECDSAWithSHA256CryptographyService extends AsymmetricCryptographyServiceSHA256{
+public class ECDSAWithSHA256CryptographyService extends AsymmetricCryptographyServiceSHA256 {
     private final ECGenParameterSpec ecSpec;
     private final KeyPairGenerator generator;
 
