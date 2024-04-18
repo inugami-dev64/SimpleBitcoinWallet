@@ -9,8 +9,14 @@ public abstract class AsymmetricCryptographyServiceSHA256 extends AsymmetricCryp
     protected AsymmetricCryptographyServiceSHA256(String className) {
         super(className);
     }
+
+    /**
+     * Digests given messageObject and returns its calculated SHA-256 hash.
+     * @param messageObject specifies the Serializable object to use as a message for hashing
+     * @return byte array containing the calculated hash
+     */
     @Override
-    public byte[] digestObject(Serializable messageObject) {
+    public byte[] digestObject(Serializable messageObject) throws SerializationException {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             return digest.digest(byteSerialize(messageObject));
@@ -18,8 +24,6 @@ public abstract class AsymmetricCryptographyServiceSHA256 extends AsymmetricCryp
         catch (NoSuchAlgorithmException e) {
             getLogger().severe("MessageDigest implementation does not support SHA-256 hashing: " + e.getMessage());
             return new byte[0];
-        } catch (SerializationException e) {
-            throw new RuntimeException(e);
         }
     }
 }

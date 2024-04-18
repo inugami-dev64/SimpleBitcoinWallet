@@ -5,8 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.students</groupId>
-    <artifactId>simplebitcoinwallet</artifactId>
+    <artifactId>SimpleBitcoinWallet</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <name>SimpleBitcoinWallet</name>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -18,6 +19,12 @@
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
             <version>1.77</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.32</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
