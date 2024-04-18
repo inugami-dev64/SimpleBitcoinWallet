@@ -83,7 +83,7 @@ public class ECDSAWithSHA256CryptographyService extends AsymmetricCryptographySe
      * @return array of bytes containing the digital signature
      */
     @Override
-    public byte[] signMessage(Serializable messageObject, byte[] privateKey) throws MalformedKeyException {
+    public byte[] signMessage(Serializable messageObject, byte[] privateKey) throws SerializationException, MalformedKeyException {
         try {
             Signature ecdsaSign = Signature.getInstance("SHA256withECDSA");
             KeyFactory kf = KeyFactory.getInstance("EC");
@@ -104,8 +104,6 @@ public class ECDSAWithSHA256CryptographyService extends AsymmetricCryptographySe
         catch (SignatureException e) {
             // temporary fix for cases that should never happen
             throw new RuntimeException(e.getMessage());
-        } catch (SerializationException e) {
-            throw new RuntimeException(e);
         }
     }
 }

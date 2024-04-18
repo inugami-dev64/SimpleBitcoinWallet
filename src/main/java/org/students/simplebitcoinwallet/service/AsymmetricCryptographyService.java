@@ -47,7 +47,7 @@ public abstract class AsymmetricCryptographyService {
      * @param privateKey specifies an array of bytes encoded in implementation specific manner
      * @return array of bytes containing the digital signature
      */
-    public abstract byte[] signMessage(Serializable messageObject, byte[] privateKey) throws MalformedKeyException;
+    public abstract byte[] signMessage(Serializable messageObject, byte[] privateKey) throws SerializationException, MalformedKeyException;
 
     /**
      * Serialize given object into byte array
