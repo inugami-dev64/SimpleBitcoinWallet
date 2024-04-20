@@ -5,4 +5,4 @@ public enum WorkModeOperation {
     LIST_WALLETS,
     DISPLAY_BALANCE,
     ADD_NEW_WALLET
-};
+}

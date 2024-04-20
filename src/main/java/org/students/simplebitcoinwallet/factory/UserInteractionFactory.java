@@ -1,6 +1,6 @@
 package org.students.simplebitcoinwallet.factory;
 
-import org.students.simplebitcoinwallet.service.impl.ECDSAWithSHA256CryptographyService;
+import org.jline.reader.LineReaderBuilder;
 import org.students.simplebitcoinwallet.ui.CmdUserInteraction;
 import org.students.simplebitcoinwallet.ui.InteractiveUserInteraction;
 import org.students.simplebitcoinwallet.ui.UserInteraction;
@@ -19,7 +19,7 @@ public class UserInteractionFactory {
         return switch (opmode) {
             case "create" -> new WalletCreationUserInteraction(System.console());
             case "open" -> new CmdUserInteraction(System.console());
-            case "interactive" -> new InteractiveUserInteraction(System.console());
+            case "interactive" -> new InteractiveUserInteraction(System.console(), LineReaderBuilder.builder().build());
             default -> null;
         };
     }

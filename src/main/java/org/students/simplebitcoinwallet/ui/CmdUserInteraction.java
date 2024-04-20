@@ -3,7 +3,6 @@ package org.students.simplebitcoinwallet.ui;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 import java.io.Console;
-import java.util.Map;
 
 /**
  * CmdUserInteraction class represents non-interactive wallet interaction ('open' work-mode), i.e actions are performed according to specified flags
