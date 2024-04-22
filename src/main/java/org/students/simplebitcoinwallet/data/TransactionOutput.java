@@ -2,8 +2,6 @@ package org.students.simplebitcoinwallet.data;
 
 import lombok.*;
 
-import java.io.Externalizable;
-import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Getter

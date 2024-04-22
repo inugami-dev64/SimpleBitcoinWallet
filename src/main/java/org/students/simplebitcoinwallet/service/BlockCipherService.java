@@ -1,7 +1,5 @@
 package org.students.simplebitcoinwallet.service;
 
-import org.students.simplebitcoinwallet.exception.InvalidPassphraseException;
-
 /**
  * Interface for providing support for block cipher cryptography abstractions
  */

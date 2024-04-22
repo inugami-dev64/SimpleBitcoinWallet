@@ -2,10 +2,10 @@ package org.students.simplebitcoinwallet.ui;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
-import picocli.CommandLine.Option;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
-import java.io.*;
+import java.io.Console;
 
 @Command(name = "interactive", description = "Open wallet in interactive console mode")
 public class InteractiveUserInteraction extends PasswordConsumer implements Runnable {

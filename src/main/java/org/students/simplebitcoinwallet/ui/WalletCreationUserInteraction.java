@@ -4,8 +4,8 @@ import com.google.inject.Inject;
 import org.students.simplebitcoinwallet.service.AsymmetricCryptographyService;
 import org.students.simplebitcoinwallet.service.BlockCipherService;
 import org.students.simplebitcoinwallet.util.SecureContainer;
-import picocli.CommandLine.Option;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 import java.io.Console;
 import java.security.KeyPair;

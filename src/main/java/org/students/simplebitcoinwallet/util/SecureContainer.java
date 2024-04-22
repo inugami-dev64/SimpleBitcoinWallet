@@ -3,8 +3,6 @@ package org.students.simplebitcoinwallet.util;
 import org.students.simplebitcoinwallet.service.BlockCipherService;
 
 import java.io.Externalizable;
-import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * Secure (wrapper) container class which can be serialized in an encrypted form.<br>
