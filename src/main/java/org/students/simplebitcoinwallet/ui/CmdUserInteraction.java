@@ -1,75 +1,76 @@
 package org.students.simplebitcoinwallet.ui;
 
-import net.sourceforge.argparse4j.inf.Namespace;
+import com.google.common.eventbus.EventBus;
+import com.google.inject.Inject;
+import org.students.simplebitcoinwallet.ui.event.*;
+import org.students.simplebitcoinwallet.util.SecureContainer;
+import picocli.CommandLine.ArgGroup;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 import java.io.Console;
+import java.io.File;
+import java.security.KeyPair;
+import java.util.Set;
 
 /**
  * CmdUserInteraction class represents non-interactive wallet interaction ('open' work-mode), i.e actions are performed according to specified flags
  * and results are printed to stdout. User input reading is unnecessary except for cases when passphrase needs to be read.
  */
-public class CmdUserInteraction implements UserInteraction {
+@Command(name = "open", description = "Open a wallet file for reading in command line mode")
+public class CmdUserInteraction extends PasswordConsumer implements Runnable {
     // internal state variables
-    private String filename;
+    @Option(names = "-f", required = true, description = "Wallet file path")
+    private File file;
+
+    @Option(names = "-P", required = false, description = "Wallet decryption password")
     private String password;
-    private WorkModeOperation operation;
-    private TransactionFilter transactionFilter;
-    private Integer walletId;
+
+    @ArgGroup(exclusive = true, multiplicity = "1")
+    private WorkMode workMode;
+
+    static class WorkMode {
+        @Option(names = "-t", description = "Display transactions")
+        TransactionFilter transactionFilter;
+        @Option(names = "-b", description = "Display wallet balance")
+        boolean displayBalance;
+        @Option(names = "-a", description = "Generate a new wallet address")
+        boolean generateNewWalletAddress;
+        @Option(names = "-l", description = "List all wallet addresses")
+        boolean listAllWalletAddresses;
+    }
+
+    @Option(names = {"-w", "--pick-wallet"}, required = false, arity = "1..n")
+    private Set<Integer> walletIds;
+
+    private SecureContainer<KeyPair> wallets;
 
     // injected dependencies
     private final Console console;
+    private final EventBus eventBus;
 
-    public CmdUserInteraction(Console console) {
+    @Inject
+    public CmdUserInteraction(Console console, EventBus eventBus) {
         this.console = console;
-    }
-
-    @Override
-    public void parseOperations(Namespace ns) {
-        this.filename = ns.getString("filename");
-        if (ns.getInt("w") != null)
-            this.walletId = ns.getInt("w");
-        else if (ns.getInt("pick-wallet") != null)
-            this.walletId = ns.getInt("pick-wallet");
-
-        // try reading password from the commandline arguments and if necessary ask user directly
-        this.password = ns.getString("P");
-        if (this.password == null) {
-            System.out.print("Password: ");
-            System.out.flush();
-            this.password = new String(console.readPassword());
-        }
-
-        // parse the work mode
-        if (ns.getString("t") != null) {
-            operation = WorkModeOperation.SHOW_TRANSACTIONS;
-            transactionFilter = TransactionFilter.valueOf(ns.getString("t").toUpperCase());
-        }
-        else if (ns.getBoolean("b"))
-            operation = WorkModeOperation.DISPLAY_BALANCE;
-        else if (ns.getBoolean("a"))
-            operation = WorkModeOperation.ADD_NEW_WALLET;
-        else if (ns.getBoolean("l"))
-            operation = WorkModeOperation.LIST_WALLETS;
+        this.eventBus = eventBus;
     }
 
     @Override
     public void run() {
-        switch (operation) {
-            case SHOW_TRANSACTIONS:
-                showTransactions();
-                break;
-            case LIST_WALLETS:
-                listWallets();
-                break;
+        password = verifyProvidedPassword(console, "Password:", password);
+        eventBus.post(new InitializeContainerEvent(file, password));
 
-            case DISPLAY_BALANCE:
-                displayBalance();
-                break;
+        // determine current work mode and thus appropriate function calls
+        if (workMode.transactionFilter != null)
+            eventBus.post(new TransactionsEvent(workMode.transactionFilter, walletIds, true));
+        else if (workMode.displayBalance)
+            eventBus.post(new BalanceEvent(walletIds, true));
+        else if (workMode.generateNewWalletAddress)
+            eventBus.post(new NewWalletAddressEvent(true));
+        else if (workMode.listAllWalletAddresses)
+            eventBus.post(new DisplayWalletAddressesEvent(walletIds, true));
 
-            case ADD_NEW_WALLET:
-                addNewWallet();
-                break;
-        }
+        eventBus.post(new SaveContainerEvent(file, password));
     }
 
     private void showTransactions() {
