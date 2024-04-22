@@ -5,13 +5,17 @@ import lombok.Getter;
 import java.math.BigDecimal;
 import java.util.function.Supplier;
 
+@Getter
 public class SendTokensEvent extends WalletModifierEvent {
-    @Getter
-    private String recipientAddress;
-    private Supplier<Boolean> promptDoubleCheck;
+    private final String recipientAddress;
+    private final BigDecimal amount;
+    private final Supplier<Boolean> promptDoubleCheck;
 
-    public SendTokensEvent(String recipient, BigDecimal amount, boolean coloredOutput, Supplier<Boolean> promptDoubleCheck) {
+    public SendTokensEvent(String recipient, BigDecimal amount, Supplier<Boolean> promptDoubleCheck, boolean coloredOutput) {
         super(coloredOutput);
+        this.recipientAddress = recipient;
+        this.amount = amount;
+        this.promptDoubleCheck = promptDoubleCheck;
     }
 
     public boolean doubleCheck() {

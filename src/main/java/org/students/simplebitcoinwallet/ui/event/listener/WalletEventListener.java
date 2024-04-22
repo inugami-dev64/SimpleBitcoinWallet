@@ -1,4 +1,4 @@
-package org.students.simplebitcoinwallet.ui.event.listeners;
+package org.students.simplebitcoinwallet.ui.event.listener;
 
 import com.google.common.eventbus.Subscribe;
 import org.students.simplebitcoinwallet.service.AsymmetricCryptographyService;
@@ -13,7 +13,7 @@ import java.io.*;
 import java.security.KeyPair;
 
 /**
- * Wallet UI event listeners which allow
+ * Wallet UI event listeners which handle
  */
 public class WalletEventListener {
     private SecureContainer<KeyPair> walletContainer;
@@ -67,6 +67,7 @@ public class WalletEventListener {
 
     @Subscribe
     public void handleNewWalletAddressEvent(NewWalletAddressEvent event) {
+        walletContainer = new LinkedListSecureContainer<>(blockCipherService, event.getPassphrase());
         KeyPair newKeyPair = asymmetricCryptographyService.generateNewKeypair();
         if (event.isColoredOutput()) {
             System.out.println("Generated a new wallet with address:\n" +

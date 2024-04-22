@@ -66,11 +66,11 @@ public class CmdUserInteraction extends PasswordConsumer implements Runnable {
         else if (workMode.displayBalance)
             eventBus.post(new BalanceEvent(walletIds, true));
         else if (workMode.generateNewWalletAddress)
-            eventBus.post(new NewWalletAddressEvent(true));
+            eventBus.post(new NewWalletAddressEvent(password,true));
         else if (workMode.listAllWalletAddresses)
             eventBus.post(new DisplayWalletAddressesEvent(walletIds, true));
 
-        eventBus.post(new SaveContainerEvent(file, password));
+        eventBus.post(new SaveContainerEvent(file));
     }
 
     private void showTransactions() {

@@ -4,6 +4,7 @@ import org.students.simplebitcoinwallet.service.BlockCipherService;
 
 /**
  * Dummy implementation class for BlockCipherService
+ * TODO: Replace it with actual BlockCipherService implementation
  */
 public class BlockCipherServiceImpl implements BlockCipherService {
     @Override
