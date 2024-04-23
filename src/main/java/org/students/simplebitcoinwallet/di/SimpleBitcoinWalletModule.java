@@ -27,6 +27,7 @@ import picocli.shell.jline3.PicocliCommands.PicocliCommandsFactory;
 
 import java.io.Console;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.function.Supplier;
@@ -36,11 +37,6 @@ import java.util.function.Supplier;
  */
 public class SimpleBitcoinWalletModule extends AbstractModule {
     private final Supplier<Path> workDir = () -> Paths.get(System.getProperty("user.dir"));
-
-    @Provides
-    public Console provideConsole() {
-        return System.console();
-    }
 
     @Provides
     public AsymmetricCryptographyService provideAsymmetricCryptographyService() {
@@ -53,8 +49,8 @@ public class SimpleBitcoinWalletModule extends AbstractModule {
     }
 
     @Provides
-    public WalletEventListener provideWalletEventListener(BlockCipherService blockCipherService, AsymmetricCryptographyService asymmetricCryptographyService) {
-        return new WalletEventListener(blockCipherService, asymmetricCryptographyService);
+    public WalletEventListener provideWalletEventListener(PrintWriter writer, BlockCipherService blockCipherService, AsymmetricCryptographyService asymmetricCryptographyService) {
+        return new WalletEventListener(writer, blockCipherService, asymmetricCryptographyService);
     }
 
     @Provides
@@ -83,7 +79,7 @@ public class SimpleBitcoinWalletModule extends AbstractModule {
     @Provides
     @Singleton
     public Terminal provideTerminal() throws IOException {
-        return TerminalBuilder.builder().build();
+        return TerminalBuilder.builder().dumb(true).build();
     }
 
     @Provides
@@ -94,6 +90,12 @@ public class SimpleBitcoinWalletModule extends AbstractModule {
         factory.setTerminal(terminal);
         CommandLine cmd = new CommandLine(rootCommand, factory);
         return new PicocliCommands(cmd);
+    }
+
+    @Provides
+    @Singleton
+    public PrintWriter providePrintWriter(Terminal terminal) {
+        return terminal.writer();
     }
 
     @Provides
