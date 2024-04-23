@@ -3,7 +3,7 @@ package org.students.simplebitcoinwallet.service;
 import org.students.simplebitcoinwallet.exception.SerializationException;
 
 import java.io.Serializable;
-import java.security.*;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 public abstract class AsymmetricCryptographyServiceSHA256 extends AsymmetricCryptographyService {
     protected AsymmetricCryptographyServiceSHA256(String className) {
