@@ -2,9 +2,7 @@ package org.students.simplebitcoinwallet.ui;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
-import org.students.simplebitcoinwallet.service.AsymmetricCryptographyService;
-import org.students.simplebitcoinwallet.service.BlockCipherService;
-import org.students.simplebitcoinwallet.ui.event.InitializeContainerEvent;
+import org.jline.reader.LineReader;
 import org.students.simplebitcoinwallet.ui.event.NewWalletAddressEvent;
 import org.students.simplebitcoinwallet.ui.event.SaveContainerEvent;
 import org.students.simplebitcoinwallet.util.SecureContainer;
@@ -30,18 +28,18 @@ public class WalletCreationUserInteraction extends PasswordConsumer implements R
     private SecureContainer<KeyPair> wallets;
 
     // injected dependencies
-    private final Console console;
+    private final LineReader reader;
     private final EventBus eventBus;
 
     @Inject
-    public WalletCreationUserInteraction(Console console, EventBus eventBus) {
-        this.console = console;
+    public WalletCreationUserInteraction(LineReader reader, EventBus eventBus) {
+        this.reader = reader;
         this.eventBus = eventBus;
     }
 
     @Override
     public void run() {
-        password = verifyProvidedPassword(console, "Password:", password);
+        password = verifyProvidedPassword(reader, "Password:", password);
         eventBus.post(new NewWalletAddressEvent(password, true));
         eventBus.post(new SaveContainerEvent(file));
     }

@@ -1,11 +1,15 @@
 package org.students.simplebitcoinwallet.ui;
 
-import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
+import org.fusesource.jansi.AnsiConsole;
+import org.jline.console.SystemRegistry;
+import org.jline.reader.EndOfFileException;
+import org.jline.reader.LineReader;
+import org.jline.reader.UserInterruptException;
+import org.jline.terminal.Terminal;
+import org.students.simplebitcoinwallet.di.PassphraseFactory;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
-
-import java.io.Console;
 
 @Command(name = "interactive", description = "Open wallet in interactive console mode")
 public class InteractiveUserInteraction extends PasswordConsumer implements Runnable {
@@ -17,37 +21,43 @@ public class InteractiveUserInteraction extends PasswordConsumer implements Runn
     private String password;
 
     // injected dependencies
-    private final Console console;
+    private final Terminal terminal;
+    private final SystemRegistry systemRegistry;
+    private final LineReader lineReader;
 
     @Inject
-    public InteractiveUserInteraction(Console console, EventBus eventBus) {
-        this.console = console;
+    public InteractiveUserInteraction(Terminal terminal, SystemRegistry systemRegistry, LineReader lineReader) {
+        this.terminal = terminal;
+        this.systemRegistry = systemRegistry;
+        this.lineReader = lineReader;
     }
 
     public void run() {
-        // ask for password if necessary
-        if (password == null) {
-            System.out.print("Password: ");
-            System.out.flush();
-            password = new String(console.readPassword());
-        }
+        password = verifyProvidedPassword(lineReader, "Password:", password);
+        PassphraseFactory.setPassphrase(password);
 
+        AnsiConsole.systemInstall();
         final String prompt = "[" + filename + "]> ";
-        System.out.println(prompt);
-    }
 
-    /*
-    private boolean readWalletKeys() {
-        wallets = new LinkedListSecureContainer<>(blockCipherService, filename);
-        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(filename));
-             ObjectInput objectInput = new ObjectInputStream(bufferedInputStream))
-        {
-            wallets.readExternal(objectInput);
-            return true;
+        String line;
+        while (true) {
+            try {
+                systemRegistry.cleanUp();
+                line = lineReader.readLine(prompt);
+                systemRegistry.execute(line);
+            }
+            catch (UserInterruptException e) {
+                terminal.writer().println("User interrupt received. Exiting...");
+                AnsiConsole.systemUninstall();
+                System.exit(0);
+            }
+            catch (EndOfFileException e) {
+                AnsiConsole.systemUninstall();
+                return;
+            }
+            catch (Exception e) {
+                systemRegistry.trace(e);
+            }
         }
-        catch (Exception e) {
-            System.err.println("ERROR: " + e.getMessage());
-            return false;
-        }
-    }*/
+    }
 }
