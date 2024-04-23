@@ -85,7 +85,7 @@ public class WalletEventListener {
 
     @Subscribe
     public void handleSendTokensEvent(SendTokensEvent event) {
-        if (event.doubleCheck()) {
+        if (event.doubleCheck("wallet address")) {
             // TODO: Implement token sending to another public key address logic
         }
     }
