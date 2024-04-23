@@ -10,6 +10,7 @@ import picocli.CommandLine.Option;
 
 import java.io.Console;
 import java.io.File;
+import java.io.PrintWriter;
 import java.util.Set;
 
 /**
@@ -44,11 +45,13 @@ public class CmdUserInteraction extends PasswordConsumer implements Runnable {
 
     // injected dependencies
     private final LineReader reader;
+    private final PrintWriter writer;
     private final EventBus eventBus;
 
     @Inject
-    public CmdUserInteraction(LineReader reader, EventBus eventBus) {
+    public CmdUserInteraction(PrintWriter writer, LineReader reader, EventBus eventBus) {
         this.reader = reader;
+        this.writer = writer;
         this.eventBus = eventBus;
     }
 
