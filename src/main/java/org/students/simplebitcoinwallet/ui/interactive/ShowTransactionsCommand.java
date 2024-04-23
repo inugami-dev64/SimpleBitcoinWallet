@@ -1,11 +1,13 @@
 package org.students.simplebitcoinwallet.ui.interactive;
 
 import com.google.common.eventbus.EventBus;
+import com.google.inject.Inject;
 import org.students.simplebitcoinwallet.ui.TransactionFilter;
 import org.students.simplebitcoinwallet.ui.event.TransactionsEvent;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
+import java.io.PrintWriter;
 import java.util.Set;
 
 @Command(name = "transactions",
@@ -19,6 +21,8 @@ public class ShowTransactionsCommand implements Runnable {
 
     // injected dependencies
     private final EventBus eventBus;
+
+    @Inject
     public ShowTransactionsCommand(EventBus eventBus) {
         this.eventBus = eventBus;
     }

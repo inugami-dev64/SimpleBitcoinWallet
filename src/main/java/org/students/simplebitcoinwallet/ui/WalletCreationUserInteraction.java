@@ -11,6 +11,7 @@ import picocli.CommandLine.Option;
 
 import java.io.Console;
 import java.io.File;
+import java.io.PrintWriter;
 import java.security.KeyPair;
 
 /**
@@ -29,11 +30,13 @@ public class WalletCreationUserInteraction extends PasswordConsumer implements R
 
     // injected dependencies
     private final LineReader reader;
+    private final PrintWriter writer;
     private final EventBus eventBus;
 
     @Inject
-    public WalletCreationUserInteraction(LineReader reader, EventBus eventBus) {
+    public WalletCreationUserInteraction(PrintWriter writer, LineReader reader, EventBus eventBus) {
         this.reader = reader;
+        this.writer = writer;
         this.eventBus = eventBus;
     }
 

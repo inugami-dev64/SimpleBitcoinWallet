@@ -21,8 +21,10 @@ public class WalletEventListener {
     // injected dependencies
     private final BlockCipherService blockCipherService;
     private final AsymmetricCryptographyService asymmetricCryptographyService;
+    private final PrintWriter writer;
 
-    public WalletEventListener(BlockCipherService blockCipherService, AsymmetricCryptographyService asymmetricCryptographyService) {
+    public WalletEventListener(PrintWriter writer, BlockCipherService blockCipherService, AsymmetricCryptographyService asymmetricCryptographyService) {
+        this.writer = writer;
         this.blockCipherService = blockCipherService;
         this.asymmetricCryptographyService = asymmetricCryptographyService;
     }
@@ -37,7 +39,8 @@ public class WalletEventListener {
             walletContainer.readExternal(objectInput);
         }
         catch (Exception e) {
-            System.err.println("ERROR: " + e.getMessage());
+            writer.println("ERROR: " + e.getMessage());
+            writer.flush();
             System.exit(1);
         }
     }
@@ -50,7 +53,8 @@ public class WalletEventListener {
             walletContainer.writeExternal(objectOutput);
         }
         catch (Exception e) {
-            System.err.println("ERROR: " + e.getMessage());
+            writer.println(Colored.ANSI_RED + "ERROR: " + e.getMessage() + Colored.ANSI_RESET);
+            writer.flush();
             System.exit(1);
         }
     }
@@ -70,14 +74,16 @@ public class WalletEventListener {
         walletContainer = new LinkedListSecureContainer<>(blockCipherService, event.getPassphrase());
         KeyPair newKeyPair = asymmetricCryptographyService.generateNewKeypair();
         if (event.isColoredOutput()) {
-            System.out.println("Generated a new wallet with address:\n" +
+            writer.println("Generated a new wallet with address:\n" +
                                 Colored.ANSI_YELLOW +
                                 Encoding.defaultPubKeyEncoding(newKeyPair.getPublic().getEncoded()) +
                                 Colored.ANSI_RESET);
+            writer.flush();
         }
         else {
-            System.out.println("Generate a new wallet with address:\n" +
+            writer.println("Generate a new wallet with address:\n" +
                                Encoding.defaultPubKeyEncoding(newKeyPair.getPublic().getEncoded()));
+            writer.flush();
         }
 
         walletContainer.add(newKeyPair);

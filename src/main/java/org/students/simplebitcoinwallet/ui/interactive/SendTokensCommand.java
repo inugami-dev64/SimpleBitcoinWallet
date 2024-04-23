@@ -1,12 +1,13 @@
 package org.students.simplebitcoinwallet.ui.interactive;
 
 import com.google.common.eventbus.EventBus;
+import com.google.inject.Inject;
+import org.jline.reader.LineReader;
 import org.students.simplebitcoinwallet.ui.event.SendTokensEvent;
 import org.students.simplebitcoinwallet.util.Colored;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-import java.io.Console;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 
@@ -23,14 +24,15 @@ public class SendTokensCommand implements Runnable {
     private BigDecimal amount;
 
     // injected dependencies
-    private final Console console;
     private final EventBus eventBus;
     private final PrintWriter printWriter;
+    private final LineReader lineReader;
 
-    public SendTokensCommand(Console console, EventBus eventBus, PrintWriter printWriter) {
+    @Inject
+    public SendTokensCommand(EventBus eventBus, PrintWriter printWriter, LineReader lineReader) {
         this.eventBus = eventBus;
-        this.console = console;
         this.printWriter = printWriter;
+        this.lineReader = lineReader;
     }
 
     @Override
@@ -44,8 +46,6 @@ public class SendTokensCommand implements Runnable {
         printWriter.println("Sender: " + Colored.ANSI_YELLOW + fromAddress + Colored.ANSI_RESET);
         printWriter.println("Recipient: " + Colored.ANSI_GREEN + recipient + Colored.ANSI_RESET);
         printWriter.println("Amount: " + amount);
-        printWriter.print("Type YES (all caps) to perform the transaction: ");
-        printWriter.flush();
-        return console.readLine().strip().equals("YES");
+        return lineReader.readLine("Type YES (all caps) to sign the transaction: ").strip().equals("YES");
     }
 }
