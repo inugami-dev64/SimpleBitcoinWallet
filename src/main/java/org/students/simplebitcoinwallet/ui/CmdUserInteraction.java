@@ -2,15 +2,14 @@ package org.students.simplebitcoinwallet.ui;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
+import org.jline.reader.LineReader;
 import org.students.simplebitcoinwallet.ui.event.*;
-import org.students.simplebitcoinwallet.util.SecureContainer;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.io.Console;
 import java.io.File;
-import java.security.KeyPair;
 import java.util.Set;
 
 /**
@@ -43,21 +42,19 @@ public class CmdUserInteraction extends PasswordConsumer implements Runnable {
     @Option(names = {"-w", "--pick-wallet"}, required = false, arity = "1..n")
     private Set<Integer> walletIds;
 
-    private SecureContainer<KeyPair> wallets;
-
     // injected dependencies
-    private final Console console;
+    private final LineReader reader;
     private final EventBus eventBus;
 
     @Inject
-    public CmdUserInteraction(Console console, EventBus eventBus) {
-        this.console = console;
+    public CmdUserInteraction(LineReader reader, EventBus eventBus) {
+        this.reader = reader;
         this.eventBus = eventBus;
     }
 
     @Override
     public void run() {
-        password = verifyProvidedPassword(console, "Password:", password);
+        password = verifyProvidedPassword(reader, "Password:", password);
         eventBus.post(new InitializeContainerEvent(file, password));
 
         // determine current work mode and thus appropriate function calls
@@ -71,29 +68,5 @@ public class CmdUserInteraction extends PasswordConsumer implements Runnable {
             eventBus.post(new DisplayWalletAddressesEvent(walletIds, true));
 
         eventBus.post(new SaveContainerEvent(file));
-    }
-
-    private void showTransactions() {
-        // TODO: Implement functionality to show transactions.
-        //       If walletId is not null then show transaction for given wallet,
-        //       otherwise show transactions for all wallets
-        System.out.println("CmdUserInteraction.showTransactions called!");
-    }
-
-    private void listWallets() {
-        // TODO: List all wallet addresses deserialized from given file
-        System.out.println("CmdUserInteraction.listWallets called!");
-    }
-
-    private void displayBalance() {
-        // TODO: Implement functionality to display wallet balance(s).
-        //       If walletId is not null then show balance for given wallet,
-        //       otherwise show wallet balances for all wallets
-        System.out.println("CmdUserInteraction.displayBalance called!");
-    }
-
-    private void addNewWallet() {
-        // TODO: Implement functionality to add a new wallet address to wallet storage.
-        System.out.println("CmdUserInteraction.addNewWallet called!");
     }
 }

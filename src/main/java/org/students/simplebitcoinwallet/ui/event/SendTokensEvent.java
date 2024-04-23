@@ -3,24 +3,26 @@ package org.students.simplebitcoinwallet.ui.event;
 import lombok.Getter;
 
 import java.math.BigDecimal;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 @Getter
 public class SendTokensEvent extends WalletModifierEvent {
+    private final Integer from;
     private final String recipientAddress;
     private final BigDecimal amount;
-    private final Supplier<Boolean> promptDoubleCheck;
+    private final Function<String, Boolean> promptDoubleCheck;
 
-    public SendTokensEvent(String recipient, BigDecimal amount, Supplier<Boolean> promptDoubleCheck, boolean coloredOutput) {
+    public SendTokensEvent(Integer from, String recipient, BigDecimal amount, Function<String, Boolean> promptDoubleCheck, boolean coloredOutput) {
         super(coloredOutput);
+        this.from = from;
         this.recipientAddress = recipient;
         this.amount = amount;
         this.promptDoubleCheck = promptDoubleCheck;
     }
 
-    public boolean doubleCheck() {
+    public boolean doubleCheck(String fromAddress) {
         if (promptDoubleCheck != null)
-            return promptDoubleCheck.get();
+            return promptDoubleCheck.apply(fromAddress);
         return true;
     }
 }
