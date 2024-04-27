@@ -1,15 +1,12 @@
 package org.students.simplebitcoinwallet.service;
 
+import org.students.simplebitcoinwallet.exception.InvalidCipherException;
+import org.students.simplebitcoinwallet.exception.InvalidKeyException;
+
 /**
  * Interface for providing support for block cipher cryptography abstractions
  */
 public interface BlockCipherService {
-    /**
-     * Calculates implementation specific checksum from given byte array to use for verification
-     * @param msg specifies the message to use for checksum calculation
-     * @return long value containing the checksum
-     */
-    long checksum(byte[] msg);
 
     /**
      * Perform a block cipher encryption on provided byte array with a key, derived from a passphrase
@@ -26,5 +23,5 @@ public interface BlockCipherService {
      * @param passphrase specifies the passphrase to use for key derivation
      * @return byte array containing decrypted message
      */
-    byte[] decrypt(byte[] cipherMsg, String passphrase);
+    byte[] decrypt(byte[] cipherMsg, String passphrase) throws InvalidKeyException, InvalidCipherException;
 }
