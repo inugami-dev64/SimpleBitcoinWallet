@@ -19,6 +19,7 @@ public interface BlockCipherService {
      */
     byte[] encrypt(byte[] msg, String passphrase);
 
+
     /**
      * Perform a block cipher decryption on provided cipher data with a key derived from a passphrase
      * @param cipherMsg specifies the cipher to decrypt
