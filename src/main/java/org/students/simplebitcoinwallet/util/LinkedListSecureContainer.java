@@ -1,5 +1,7 @@
 package org.students.simplebitcoinwallet.util;
 
+import org.students.simplebitcoinwallet.exception.InvalidCipherException;
+import org.students.simplebitcoinwallet.exception.InvalidKeyException;
 import org.students.simplebitcoinwallet.service.BlockCipherService;
 
 import java.io.*;
@@ -58,9 +60,7 @@ public class LinkedListSecureContainer<T> extends SecureContainer<T> {
         {
             objectOutput.writeObject(innerContainer);
             byte[] msg = byteArrayOutputStream.toByteArray();
-            final long checksum = blockCipherService.checksum(msg);
             byte[] cipher = blockCipherService.encrypt(msg, passphrase);
-            out.writeLong(checksum);
             out.writeInt(cipher.length);
             out.write(cipher);
         }
@@ -68,22 +68,22 @@ public class LinkedListSecureContainer<T> extends SecureContainer<T> {
 
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        final long checksum = in.readLong();
         final int size = in.readInt();
 
         byte[] cipher = new byte[size];
         in.read(cipher);
 
-        byte[] rawMsg = blockCipherService.decrypt(cipher, passphrase);
-        if (blockCipherService.checksum(rawMsg) != checksum)
-            throw new IOException("Invalid passphrase");
-
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(rawMsg);
-             ObjectInput objectInput = new ObjectInputStream(byteArrayInputStream))
-        {
-            Object rawObj = objectInput.readObject();
-            if (rawObj instanceof List)
-                innerContainer = (List<T>) objectInput.readObject();
+        try {
+            byte[] rawMsg = blockCipherService.decrypt(cipher, passphrase);
+            try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(rawMsg);
+                 ObjectInput objectInput = new ObjectInputStream(byteArrayInputStream))
+            {
+                Object rawObj = objectInput.readObject();
+                if (rawObj instanceof List)
+                    innerContainer = (List<T>) objectInput.readObject();
+            }
+        } catch (InvalidKeyException | InvalidCipherException e) {
+            throw new IOException(e.getMessage());
         }
     }
 }

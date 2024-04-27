@@ -5,8 +5,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import org.students.simplebitcoinwallet.service.AsymmetricCryptographyService;
 import org.students.simplebitcoinwallet.service.BlockCipherService;
-import org.students.simplebitcoinwallet.service.impl.BlockCipherServiceImpl;
 import org.students.simplebitcoinwallet.service.impl.ECDSAWithSHA256CryptographyService;
+import org.students.simplebitcoinwallet.service.impl.RijndaelBlockCipherService;
 import org.students.simplebitcoinwallet.ui.event.listener.WalletEventListener;
 
 import java.io.Console;
@@ -27,7 +27,7 @@ public class SimpleBitcoinWalletModule extends AbstractModule {
 
     @Provides
     public BlockCipherService provideBlockCipherService() {
-        return new BlockCipherServiceImpl();
+        return new RijndaelBlockCipherService();
     }
 
     @Provides
