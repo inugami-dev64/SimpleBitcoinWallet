@@ -5,6 +5,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import jdk.jfr.Name;
 import org.jline.builtins.ConfigurationPath;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.Builtins;
@@ -17,7 +18,9 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.widget.TailTipWidgets;
 import org.students.simplebitcoinwallet.service.AsymmetricCryptographyService;
 import org.students.simplebitcoinwallet.service.BlockCipherService;
+import org.students.simplebitcoinwallet.service.HTTPRequestService;
 import org.students.simplebitcoinwallet.service.impl.ECDSAWithSHA256CryptographyService;
+import org.students.simplebitcoinwallet.service.impl.HTTPRequestServiceImpl;
 import org.students.simplebitcoinwallet.service.impl.RijndaelBlockCipherService;
 import org.students.simplebitcoinwallet.ui.event.listener.WalletEventListener;
 import org.students.simplebitcoinwallet.ui.interactive.RootCommand;
@@ -40,6 +43,18 @@ public class SimpleBitcoinWalletModule extends AbstractModule {
     @Provides
     public AsymmetricCryptographyService provideAsymmetricCryptographyService() {
         return new ECDSAWithSHA256CryptographyService();
+    }
+
+    @Provides
+    @Named("endpoint")
+    String provideHttpEndpoint() {
+        // TEMPORARY
+        return "http://localhost:8080";
+    }
+
+    @Provides
+    HTTPRequestService provideHttpRequestService(@Named("endpoint") String endpointUrl) {
+        return new HTTPRequestServiceImpl(endpointUrl);
     }
 
     @Provides
