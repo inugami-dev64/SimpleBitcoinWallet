@@ -10,7 +10,6 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import java.io.File;
-import java.io.PrintWriter;
 import java.security.KeyPair;
 
 /**

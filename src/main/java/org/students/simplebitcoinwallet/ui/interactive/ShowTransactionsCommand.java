@@ -7,7 +7,6 @@ import org.students.simplebitcoinwallet.ui.event.TransactionsEvent;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-import java.io.PrintWriter;
 import java.util.Set;
 
 @Command(name = "transactions",

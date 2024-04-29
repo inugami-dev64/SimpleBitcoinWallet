@@ -6,7 +6,6 @@ import org.students.simplebitcoinwallet.ui.event.BalanceEvent;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-import java.io.PrintWriter;
 import java.util.Set;
 
 @Command(name = "balance",

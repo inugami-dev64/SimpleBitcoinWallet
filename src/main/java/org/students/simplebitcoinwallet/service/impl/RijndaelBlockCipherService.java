@@ -1,17 +1,17 @@
 package org.students.simplebitcoinwallet.service.impl;
 
 import org.students.simplebitcoinwallet.exception.InvalidCipherException;
+import org.students.simplebitcoinwallet.exception.InvalidKeyException;
 import org.students.simplebitcoinwallet.service.BlockCipherService;
 
-import javax.crypto.*;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.security.InvalidAlgorithmParameterException;
-import org.students.simplebitcoinwallet.exception.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 
 public class RijndaelBlockCipherService implements BlockCipherService {
