@@ -1,8 +1,9 @@
 package org.students.simplebitcoinwallet.service;
 
-import org.students.simplebitcoinwallet.exception.ExternalNodeInvalidHTTPCodeException;
+import org.students.simplebitcoinwallet.data.HttpRequestMethod;
 
 import java.io.IOException;
+import java.net.http.HttpResponse;
 import java.util.Map;
 
 /**
@@ -10,37 +11,21 @@ import java.util.Map;
  */
 public interface HTTPRequestService {
     /**
-     * Performs an HTTP GET request for specified URI
+     * Performs an HTTP request for specified URL
      * @param uri relative URL path
+     * @param method specifies the HTTP request method to use
      * @param headers HTTP headers
-     * @param urlParams URL parameters
+     * @param requestBody specifies the request body to use
      * @return byte array containing the response body
      */
-    byte[] get(String uri, Map<String, String> headers, Map<String, String> urlParams) throws IOException, ExternalNodeInvalidHTTPCodeException;
+     HttpResponse<byte[]> request(String uri, HttpRequestMethod method, Map<String, String> headers, byte[] requestBody) throws IOException;
 
     /**
-     * Performs an HTTP POST request for specified URL
+     * Performs an HTTP request for specified URL
      * @param uri relative URL path
-     * @param headers HTTP headers
-     * @param requestBody byte array containing the request body
-     * @return byte array containing the response body
-     */
-    byte[] post(String uri, Map<String,String> headers, byte[] requestBody) throws IOException, ExternalNodeInvalidHTTPCodeException;
-
-    /**
-     * Performs an HTTP PUT request for specified URL
-     * @param uri relative URL path
-     * @param headers HTTP headers
-     * @param requestBody byte array containing the request body
-     * @return byte array containing the response body
-     */
-    byte[] put(String uri, Map<String, String> headers, byte[] requestBody) throws IOException, ExternalNodeInvalidHTTPCodeException;
-
-    /**
-     * Performs an HTTP DELETE request for specified URL
-     * @param uri relative URL path
+     * @param method specifies the HTTP request method to use
      * @param headers HTTP headers
      * @return byte array containing the response body
      */
-    byte[] delete(String uri, Map<String, String> headers) throws IOException, ExternalNodeInvalidHTTPCodeException;
+    HttpResponse<byte[]> request(String uri, HttpRequestMethod method, Map<String, String> headers) throws IOException;
 }
