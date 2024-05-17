@@ -1,5 +1,10 @@
 package org.students.simplebitcoinwallet.data;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.*;
 import org.students.simplebitcoinwallet.exception.InvalidEncodedStringException;
 import org.students.simplebitcoinwallet.util.Encoding;
@@ -23,6 +28,8 @@ public class Transaction implements Externalizable {
     private List<TransactionOutput> inputs;     // - UTXO’s used as inputs for given transaction
     private List<TransactionOutput> outputs;    // - outputs produced by given transaction
     private String senderPublicKey;             // - base58 encoded string representing sender’s public key
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime timestamp;            // - timestamp of when the transaction was made
 
     @Override
