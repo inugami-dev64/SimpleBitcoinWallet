@@ -17,8 +17,10 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.widget.TailTipWidgets;
 import org.students.simplebitcoinwallet.service.AsymmetricCryptographyService;
+import org.students.simplebitcoinwallet.service.BitcoinNodeAPIService;
 import org.students.simplebitcoinwallet.service.BlockCipherService;
 import org.students.simplebitcoinwallet.service.HTTPRequestService;
+import org.students.simplebitcoinwallet.service.impl.BitcoinNodeAPIServiceImpl;
 import org.students.simplebitcoinwallet.service.impl.ECDSAWithSHA256CryptographyService;
 import org.students.simplebitcoinwallet.service.impl.HTTPRequestServiceImpl;
 import org.students.simplebitcoinwallet.service.impl.RijndaelBlockCipherService;
@@ -47,14 +49,20 @@ public class SimpleBitcoinWalletModule extends AbstractModule {
 
     @Provides
     @Named("endpoint")
-    String provideHttpEndpoint() {
+    public String provideHttpEndpoint() {
         // TEMPORARY
         return "http://localhost:8080";
     }
 
     @Provides
-    HTTPRequestService provideHttpRequestService(@Named("endpoint") String endpointUrl) {
+    public HTTPRequestService provideHttpRequestService(@Named("endpoint") String endpointUrl) {
         return new HTTPRequestServiceImpl(endpointUrl);
+    }
+
+    @Provides
+    public BitcoinNodeAPIService provideBitcoinNodeAPIService(@Named("endpoint") String baseURL,
+                                                       HTTPRequestService httpRequestService) {
+        return new BitcoinNodeAPIServiceImpl(baseURL,httpRequestService);
     }
 
     @Provides
@@ -63,8 +71,14 @@ public class SimpleBitcoinWalletModule extends AbstractModule {
     }
 
     @Provides
-    public WalletEventListener provideWalletEventListener(PrintWriter writer, BlockCipherService blockCipherService, AsymmetricCryptographyService asymmetricCryptographyService) {
-        return new WalletEventListener(writer, blockCipherService, asymmetricCryptographyService);
+    public WalletEventListener provideWalletEventListener(PrintWriter writer,
+                                                          BlockCipherService blockCipherService,
+                                                          AsymmetricCryptographyService asymmetricCryptographyService,
+                                                          BitcoinNodeAPIService bitcoinNodeAPIService) {
+        return new WalletEventListener(writer,
+                blockCipherService,
+                asymmetricCryptographyService,
+                bitcoinNodeAPIService);
     }
 
     @Provides
