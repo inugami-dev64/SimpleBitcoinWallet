@@ -23,14 +23,26 @@ Windows:
 > .\mvnw.cmd package
 ```
 
-After building the application you can run it with a script provided in the repository. I.e.
+After building the application you can run it with a wrapper script provided in the repository. I.e.
 on Linux/MacOS:  
-```sh
-$ ./simple-bitcoin-wallet interactive
+```shell
+$ ./simple-bitcoin-wallet create wallet.btc
 ```
 or on Windows:  
 ```cmd
-> .\simple-bitcoin-wallet.cmd interactive
+> .\simple-bitcoin-wallet.cmd create wallet.btc
+```
+
+After successfully creating a new wallet file, you can use either the interactive or commandline parameter mode for interacting with it.
+For example let's say that we want to use an interactive mode: 
+```shell
+$ ./simple-bitcoin-wallet interactive wallet.btc
+```
+where wallet.btc is the wallet file.
+
+For more information about the usage see:
+```shell
+$ ./simple-bitcoin-wallet -h
 ```
 
 ## Project roadmap
