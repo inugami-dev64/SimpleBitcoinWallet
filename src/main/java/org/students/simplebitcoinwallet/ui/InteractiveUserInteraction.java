@@ -1,5 +1,6 @@
 package org.students.simplebitcoinwallet.ui;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import org.fusesource.jansi.AnsiConsole;
 import org.jline.console.SystemRegistry;
@@ -8,14 +9,17 @@ import org.jline.reader.LineReader;
 import org.jline.reader.UserInterruptException;
 import org.jline.terminal.Terminal;
 import org.students.simplebitcoinwallet.di.PassphraseFactory;
+import org.students.simplebitcoinwallet.ui.event.InitializeContainerEvent;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+
+import java.io.File;
 
 @Command(name = "interactive", description = "Open wallet in interactive console mode")
 public class InteractiveUserInteraction extends PasswordConsumer implements Runnable {
     // internal state variables
     @Option(names = "-f", description = "Wallet file path", required = true)
-    private String filename;
+    private File filename;
 
     @Option(names = "-P", description = "Wallet password", required = false)
     private String password;
@@ -24,17 +28,21 @@ public class InteractiveUserInteraction extends PasswordConsumer implements Runn
     private final Terminal terminal;
     private final SystemRegistry systemRegistry;
     private final LineReader lineReader;
+    private final EventBus eventBus;
 
     @Inject
-    public InteractiveUserInteraction(Terminal terminal, SystemRegistry systemRegistry, LineReader lineReader) {
+    public InteractiveUserInteraction(Terminal terminal, SystemRegistry systemRegistry, LineReader lineReader, EventBus eventBus) {
         this.terminal = terminal;
         this.systemRegistry = systemRegistry;
         this.lineReader = lineReader;
+        this.eventBus = eventBus;
     }
 
     public void run() {
         password = verifyProvidedPassword(lineReader, "Password:", password);
         PassphraseFactory.setPassphrase(password);
+
+        eventBus.post(new InitializeContainerEvent(filename, password));
 
         AnsiConsole.systemInstall();
         final String prompt = "[" + filename + "]> ";

@@ -1,16 +1,15 @@
 package org.students.simplebitcoinwallet.test;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.students.simplebitcoinwallet.exception.InvalidCipherException;
 import org.students.simplebitcoinwallet.exception.InvalidKeyException;
 import org.students.simplebitcoinwallet.service.BlockCipherService;
 import org.students.simplebitcoinwallet.service.impl.RijndaelBlockCipherService;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RijndaelBlockCipherServiceTests {
     private final BlockCipherService blockCipherService = new RijndaelBlockCipherService();

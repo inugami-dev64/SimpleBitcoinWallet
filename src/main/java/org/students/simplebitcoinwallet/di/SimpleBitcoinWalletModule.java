@@ -5,6 +5,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
+import jdk.jfr.Name;
 import org.jline.builtins.ConfigurationPath;
 import org.jline.console.SystemRegistry;
 import org.jline.console.impl.Builtins;
@@ -16,8 +17,12 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.widget.TailTipWidgets;
 import org.students.simplebitcoinwallet.service.AsymmetricCryptographyService;
+import org.students.simplebitcoinwallet.service.BitcoinNodeAPIService;
 import org.students.simplebitcoinwallet.service.BlockCipherService;
+import org.students.simplebitcoinwallet.service.HTTPRequestService;
+import org.students.simplebitcoinwallet.service.impl.BitcoinNodeAPIServiceImpl;
 import org.students.simplebitcoinwallet.service.impl.ECDSAWithSHA256CryptographyService;
+import org.students.simplebitcoinwallet.service.impl.HTTPRequestServiceImpl;
 import org.students.simplebitcoinwallet.service.impl.RijndaelBlockCipherService;
 import org.students.simplebitcoinwallet.ui.event.listener.WalletEventListener;
 import org.students.simplebitcoinwallet.ui.interactive.RootCommand;
@@ -25,7 +30,6 @@ import picocli.CommandLine;
 import picocli.shell.jline3.PicocliCommands;
 import picocli.shell.jline3.PicocliCommands.PicocliCommandsFactory;
 
-import java.io.Console;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Path;
@@ -44,13 +48,37 @@ public class SimpleBitcoinWalletModule extends AbstractModule {
     }
 
     @Provides
+    @Named("endpoint")
+    public String provideHttpEndpoint() {
+        // TEMPORARY
+        return "http://localhost:8080";
+    }
+
+    @Provides
+    public HTTPRequestService provideHttpRequestService(@Named("endpoint") String endpointUrl) {
+        return new HTTPRequestServiceImpl(endpointUrl);
+    }
+
+    @Provides
+    public BitcoinNodeAPIService provideBitcoinNodeAPIService(@Named("endpoint") String baseURL,
+                                                       HTTPRequestService httpRequestService) {
+        return new BitcoinNodeAPIServiceImpl(baseURL,httpRequestService);
+    }
+
+    @Provides
     public BlockCipherService provideBlockCipherService() {
         return new RijndaelBlockCipherService();
     }
 
     @Provides
-    public WalletEventListener provideWalletEventListener(PrintWriter writer, BlockCipherService blockCipherService, AsymmetricCryptographyService asymmetricCryptographyService) {
-        return new WalletEventListener(writer, blockCipherService, asymmetricCryptographyService);
+    public WalletEventListener provideWalletEventListener(PrintWriter writer,
+                                                          BlockCipherService blockCipherService,
+                                                          AsymmetricCryptographyService asymmetricCryptographyService,
+                                                          BitcoinNodeAPIService bitcoinNodeAPIService) {
+        return new WalletEventListener(writer,
+                blockCipherService,
+                asymmetricCryptographyService,
+                bitcoinNodeAPIService);
     }
 
     @Provides

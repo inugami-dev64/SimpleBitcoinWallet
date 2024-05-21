@@ -6,8 +6,6 @@ import com.google.inject.name.Named;
 import org.students.simplebitcoinwallet.ui.event.NewWalletAddressEvent;
 import picocli.CommandLine.Command;
 
-import java.io.PrintWriter;
-
 @Command(name = "create",
         description = "Create a new wallet")
 public class CreateNewWalletCommand implements Runnable {

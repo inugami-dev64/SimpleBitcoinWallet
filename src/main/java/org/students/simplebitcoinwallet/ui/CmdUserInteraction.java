@@ -8,7 +8,6 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-import java.io.Console;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.Set;
