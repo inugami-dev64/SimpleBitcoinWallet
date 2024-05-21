@@ -15,7 +15,6 @@ import org.students.simplebitcoinwallet.util.SecureContainer;
 import java.io.*;
 import java.math.BigDecimal;
 import java.security.KeyPair;
-import java.security.PublicKey;
 import java.text.DecimalFormat;
 import java.util.*;
 

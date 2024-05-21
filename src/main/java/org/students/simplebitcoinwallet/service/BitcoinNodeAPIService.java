@@ -6,7 +6,6 @@ import org.students.simplebitcoinwallet.data.TransactionQueryType;
 import org.students.simplebitcoinwallet.exception.ExternalNodeInvalidHTTPCodeException;
 import org.students.simplebitcoinwallet.exception.ExternalNodeValidationException;
 
-import java.security.KeyPair;
 import java.security.PublicKey;
 import java.time.LocalDateTime;
 import java.util.List;

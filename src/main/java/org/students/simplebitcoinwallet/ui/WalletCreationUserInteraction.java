@@ -3,16 +3,14 @@ package org.students.simplebitcoinwallet.ui;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import org.jline.reader.LineReader;
-import org.students.simplebitcoinwallet.ui.event.NewWalletAddressEvent;
 import org.students.simplebitcoinwallet.ui.event.SaveContainerEvent;
 import org.students.simplebitcoinwallet.ui.event.WalletFileCreationEvent;
 import org.students.simplebitcoinwallet.util.SecureContainer;
-import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 import java.io.File;
-import java.io.PrintWriter;
 import java.security.KeyPair;
 
 /**

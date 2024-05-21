@@ -3,8 +3,8 @@ package org.students.simplebitcoinwallet.ui.interactive;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import org.students.simplebitcoinwallet.ui.event.BalanceEvent;
-import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 
 import java.util.HashSet;
 import java.util.Set;

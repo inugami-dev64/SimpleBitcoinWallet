@@ -5,11 +5,10 @@ import com.google.inject.Inject;
 import org.jline.reader.LineReader;
 import org.students.simplebitcoinwallet.data.TransactionQueryType;
 import org.students.simplebitcoinwallet.ui.event.*;
-
-import picocli.CommandLine.Parameters;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 import java.io.File;
 import java.util.Set;

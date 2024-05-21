@@ -12,7 +12,6 @@ import org.students.simplebitcoinwallet.util.Encoding;
 import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyPair;
 import java.security.PublicKey;
 import java.time.LocalDateTime;
 import java.util.HashMap;

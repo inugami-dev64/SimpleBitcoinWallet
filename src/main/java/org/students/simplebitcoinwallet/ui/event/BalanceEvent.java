@@ -1,6 +1,5 @@
 package org.students.simplebitcoinwallet.ui.event;
 
-import java.io.PrintWriter;
 import java.util.Set;
 
 /**

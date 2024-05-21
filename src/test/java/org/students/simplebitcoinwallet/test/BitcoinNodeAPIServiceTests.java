@@ -1,12 +1,8 @@
 package org.students.simplebitcoinwallet.test;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.ArgumentMatchers.any;
-
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -18,7 +14,6 @@ import org.students.simplebitcoinwallet.service.BitcoinNodeAPIService;
 import org.students.simplebitcoinwallet.service.HTTPRequestService;
 import org.students.simplebitcoinwallet.service.impl.BitcoinNodeAPIServiceImpl;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
@@ -26,6 +21,9 @@ import java.security.KeyPair;
 import java.security.PublicKey;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 public class BitcoinNodeAPIServiceTests {
     @Mock

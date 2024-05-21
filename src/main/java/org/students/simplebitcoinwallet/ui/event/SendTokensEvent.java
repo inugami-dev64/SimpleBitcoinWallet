@@ -2,7 +2,6 @@ package org.students.simplebitcoinwallet.ui.event;
 
 import lombok.Getter;
 
-import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.util.function.Function;
 
