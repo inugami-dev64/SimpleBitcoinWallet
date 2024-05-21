@@ -24,5 +24,6 @@ public class ShowCommand implements Runnable {
     @Override
     public void run() {
         out.println(new CommandLine(this).getUsageMessage());
+        out.flush();
     }
 }

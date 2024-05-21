@@ -1,12 +1,8 @@
 package org.students.simplebitcoinwallet.test;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.ArgumentMatchers.any;
-
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -18,7 +14,6 @@ import org.students.simplebitcoinwallet.service.BitcoinNodeAPIService;
 import org.students.simplebitcoinwallet.service.HTTPRequestService;
 import org.students.simplebitcoinwallet.service.impl.BitcoinNodeAPIServiceImpl;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
@@ -26,6 +21,9 @@ import java.security.KeyPair;
 import java.security.PublicKey;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 public class BitcoinNodeAPIServiceTests {
     @Mock
@@ -36,7 +34,6 @@ public class BitcoinNodeAPIServiceTests {
     private KeyPair testKeyPair;
     @Mock
     private PublicKey testPublicKey;
-    private static final String baseURL = "http://test.app";
 
 
     private String getSampleTransactionJson() {
@@ -105,9 +102,9 @@ public class BitcoinNodeAPIServiceTests {
         given(testPublicKey.getEncoded()).willReturn(new byte[178]);
         given(testKeyPair.getPublic()).willReturn(testPublicKey);
 
-        BitcoinNodeAPIService bitcoinNodeAPIService = new BitcoinNodeAPIServiceImpl(baseURL,httpRequestService);
+        BitcoinNodeAPIService bitcoinNodeAPIService = new BitcoinNodeAPIServiceImpl(httpRequestService);
 
-        List<Transaction> transactions = bitcoinNodeAPIService.getTransactions(TransactionQueryType.ALL, testKeyPair);
+        List<Transaction> transactions = bitcoinNodeAPIService.getTransactions(TransactionQueryType.ALL, testKeyPair.getPublic());
         Assertions.assertEquals(1, transactions.size());
 
         Transaction expected = getSampleTransactionObject();
@@ -139,9 +136,9 @@ public class BitcoinNodeAPIServiceTests {
         given(testPublicKey.getEncoded()).willReturn(new byte[178]);
         given(testKeyPair.getPublic()).willReturn(testPublicKey);
 
-        BitcoinNodeAPIService bitcoinNodeAPIService = new BitcoinNodeAPIServiceImpl(baseURL,httpRequestService);
+        BitcoinNodeAPIService bitcoinNodeAPIService = new BitcoinNodeAPIServiceImpl(httpRequestService);
 
-        Assertions.assertThrows(ExternalNodeInvalidHTTPCodeException.class, () -> bitcoinNodeAPIService.getTransactions(TransactionQueryType.ALL, testKeyPair));
+        Assertions.assertThrows(ExternalNodeInvalidHTTPCodeException.class, () -> bitcoinNodeAPIService.getTransactions(TransactionQueryType.ALL, testKeyPair.getPublic()));
     }
 
     @Test
@@ -169,7 +166,7 @@ public class BitcoinNodeAPIServiceTests {
         given(httpRequestService.request(any(),any(), any()))
                 .willReturn(httpResponse);
 
-        BitcoinNodeAPIService bitcoinNodeAPIService = new BitcoinNodeAPIServiceImpl(baseURL,httpRequestService);
+        BitcoinNodeAPIService bitcoinNodeAPIService = new BitcoinNodeAPIServiceImpl(httpRequestService);
 
         Assertions.assertTrue(bitcoinNodeAPIService.status());
     }
@@ -180,7 +177,7 @@ public class BitcoinNodeAPIServiceTests {
         given(httpRequestService.request(any(),any(), any()))
                 .willReturn(httpResponse);
 
-        BitcoinNodeAPIService bitcoinNodeAPIService = new BitcoinNodeAPIServiceImpl(baseURL,httpRequestService);
+        BitcoinNodeAPIService bitcoinNodeAPIService = new BitcoinNodeAPIServiceImpl(httpRequestService);
 
         Assertions.assertFalse(bitcoinNodeAPIService.status());
     }
@@ -194,7 +191,7 @@ public class BitcoinNodeAPIServiceTests {
         given(httpRequestService.request(any(),any(), any()))
                 .willReturn(httpResponse);
 
-        BitcoinNodeAPIService bitcoinNodeAPIService = new BitcoinNodeAPIServiceImpl(baseURL,httpRequestService);
+        BitcoinNodeAPIService bitcoinNodeAPIService = new BitcoinNodeAPIServiceImpl(httpRequestService);
 
         Assertions.assertEquals(time, bitcoinNodeAPIService.serverTime());
     }
@@ -206,9 +203,8 @@ public class BitcoinNodeAPIServiceTests {
         given(httpRequestService.request(any(),any(), any()))
                 .willReturn(httpResponse);
 
-        BitcoinNodeAPIService bitcoinNodeAPIService = new BitcoinNodeAPIServiceImpl(baseURL,httpRequestService);
+        BitcoinNodeAPIService bitcoinNodeAPIService = new BitcoinNodeAPIServiceImpl(httpRequestService);
 
         Assertions.assertThrows(ExternalNodeInvalidHTTPCodeException.class, bitcoinNodeAPIService::serverTime);
     }
-
 }

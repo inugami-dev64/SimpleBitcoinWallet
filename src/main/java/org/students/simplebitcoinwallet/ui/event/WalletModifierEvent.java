@@ -2,6 +2,7 @@ package org.students.simplebitcoinwallet.ui.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import java.io.PrintWriter;
 
 @Getter
 @AllArgsConstructor

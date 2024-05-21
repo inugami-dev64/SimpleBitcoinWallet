@@ -14,8 +14,8 @@ import java.util.function.Consumer;
 public class LinkedListSecureContainer<T> extends SecureContainer<T> {
     List<T> innerContainer = new LinkedList<>();
 
-    public LinkedListSecureContainer(BlockCipherService blockCipherService, String passphrase) {
-        super(blockCipherService, passphrase);
+    public LinkedListSecureContainer(BlockCipherService blockCipherService) {
+        super(blockCipherService);
     }
 
     @Override
@@ -58,7 +58,11 @@ public class LinkedListSecureContainer<T> extends SecureContainer<T> {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              ObjectOutput objectOutput = new ObjectOutputStream(byteArrayOutputStream))
         {
-            objectOutput.writeObject(innerContainer);
+            objectOutput.writeInt(innerContainer.size());
+            for (T obj : innerContainer)
+                objectOutput.writeObject(obj);
+
+            objectOutput.flush();
             byte[] msg = byteArrayOutputStream.toByteArray();
             byte[] cipher = blockCipherService.encrypt(msg, passphrase);
             out.writeInt(cipher.length);
@@ -76,11 +80,11 @@ public class LinkedListSecureContainer<T> extends SecureContainer<T> {
         try {
             byte[] rawMsg = blockCipherService.decrypt(cipher, passphrase);
             try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(rawMsg);
-                 ObjectInput objectInput = new ObjectInputStream(byteArrayInputStream))
+                 ObjectInput input = new ObjectInputStream(byteArrayInputStream))
             {
-                Object rawObj = objectInput.readObject();
-                if (rawObj instanceof List)
-                    innerContainer = (List<T>) objectInput.readObject();
+                int len = input.readInt();
+                for (int i = 0; i < len; i++)
+                    innerContainer.add((T)input.readObject());
             }
         } catch (InvalidKeyException | InvalidCipherException e) {
             throw new IOException(e.getMessage());

@@ -2,12 +2,11 @@ package org.students.simplebitcoinwallet.ui.event;
 
 import lombok.Getter;
 
+import java.io.PrintWriter;
+
 @Getter
 public final class NewWalletAddressEvent extends WalletModifierEvent {
-    private final String passphrase;
-
-    public NewWalletAddressEvent(String passphrase, boolean coloredOutput) {
+    public NewWalletAddressEvent(boolean coloredOutput) {
         super(coloredOutput);
-        this.passphrase = passphrase;
     }
 }

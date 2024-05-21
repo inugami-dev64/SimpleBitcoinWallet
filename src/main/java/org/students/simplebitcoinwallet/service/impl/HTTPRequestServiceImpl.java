@@ -4,11 +4,11 @@ import org.students.simplebitcoinwallet.data.HttpRequestMethod;
 import org.students.simplebitcoinwallet.service.HTTPRequestService;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.net.URI;
 import java.util.Map;
 
 public class HTTPRequestServiceImpl implements HTTPRequestService {
