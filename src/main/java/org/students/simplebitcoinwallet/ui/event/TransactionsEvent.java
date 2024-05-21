@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.students.simplebitcoinwallet.data.TransactionQueryType;
 
 import java.util.Set;
+import java.io.PrintWriter;
 
 /**
  * Type of event that signals human-readable transaction objects must be returned
