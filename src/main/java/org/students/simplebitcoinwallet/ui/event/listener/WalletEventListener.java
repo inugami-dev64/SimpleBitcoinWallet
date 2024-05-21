@@ -19,10 +19,9 @@ import java.text.DecimalFormat;
 import java.util.*;
 
 /**
- * Wallet UI event listeners which handle
+ * Wallet UI event listener class
  */
 public class WalletEventListener {
-
     // injected dependencies
     private final AsymmetricCryptographyService asymmetricCryptographyService;
     private final PrintWriter writer;
@@ -41,7 +40,10 @@ public class WalletEventListener {
         this.walletContainer = walletContainer;
     }
 
-
+    /**
+     * Initializes the wallet container by reading from the provided wallet file
+     * @param event specifies InitializeContainerEvent object that specifies the file where to read from and encryption passphrase
+     */
     @Subscribe
     public void handleContainerInitializationEvent(InitializeContainerEvent event) {
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(event.getFile()));
@@ -58,6 +60,10 @@ public class WalletEventListener {
         }
     }
 
+    /**
+     * Creates a new empty encrypted wallet file
+     * @param event specifies a WalletFileCreationEvent object, that specifies the file where to write and encryption passphrase
+     */
     @Subscribe
     public void handleWalletFileCreationEvent(WalletFileCreationEvent event) {
         try (BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(event.getFile()));
@@ -74,6 +80,10 @@ public class WalletEventListener {
         }
     }
 
+    /**
+     * Save wallet container into encrypted file
+     * @param event specifies a SaveContainerEvent object that is used to signal the event
+     */
     @Subscribe
     public void handleSaveContainerEvent(SaveContainerEvent event) {
         try (BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(walletContainer.getFile()));
@@ -88,6 +98,10 @@ public class WalletEventListener {
         }
     }
 
+    /**
+     * Displays wallet balance for specified wallets
+     * @param event specifies a BalanceEvent object that contains detailed data about the requested balance command
+     */
     @Subscribe
     public void handleBalanceEvent(BalanceEvent event) {
         Set<Integer> walletIds = getWalletIds(event.getWalletIds());
@@ -109,17 +123,10 @@ public class WalletEventListener {
         }
     }
 
-    private boolean checkWalletIdBounds(Set<Integer> walletIds){
-        for (Integer indeks : walletIds) {
-            if (indeks - 1 >= walletContainer.size()) {
-                writer.println("Invalid wallet ID " + indeks);
-                writer.flush();
-                return false;
-            }
-        }
-        return true;
-    }
-
+    /**
+     * Displays specified wallet addresses for user
+     * @param event specifies a DisplayWalletAddressesEvent object which contains detailed data about the request
+     */
     @Subscribe
     public void handleDisplayWalletAddressesEvent(DisplayWalletAddressesEvent event) {
         Set<Integer> walletIds = getWalletIds(event.getWalletIds());
@@ -137,17 +144,10 @@ public class WalletEventListener {
         }
     }
 
-    private Set<Integer> getWalletIds(Set<Integer> payload) {
-        if (!payload.isEmpty())
-            return payload;
-
-        Set<Integer> walletIds = new HashSet<>();
-        for (int i = 0; i < walletContainer.size(); i++)
-            walletIds.add(i + 1);
-
-        return walletIds;
-    }
-
+    /**
+     * Generates a new wallet address and appends it to the wallet container
+     * @param event specifies a NewWalletAddressEvent object that is used to signal given event
+     */
     @Subscribe
     public void handleNewWalletAddressEvent(NewWalletAddressEvent event) {
         KeyPair newKeyPair = asymmetricCryptographyService.generateNewKeypair();
@@ -167,6 +167,10 @@ public class WalletEventListener {
         walletContainer.add(newKeyPair);
     }
 
+    /**
+     * Broadcasts a new transaction in which there has been tokens transferred from one wallet into another
+     * @param event specifies a SendTokensEvent object that contains detailed data about the transaction to make
+     */
     @Subscribe
     public void handleSendTokensEvent(SendTokensEvent event) {
         if (event.getFrom() - 1 >= walletContainer.size()) {
@@ -221,6 +225,118 @@ public class WalletEventListener {
         }
     }
 
+    /**
+     * Display transactions for each requested wallet
+     * @param event specifies a TransactionsEvent object that contains detailed data about whose transactions to display
+     */
+    @Subscribe
+    public void handleTransactionsEvent(TransactionsEvent event) {
+        Set<Integer> walletIds = getWalletIds(event.getWalletIds());
+        if (!checkWalletIdBounds(walletIds))
+            return;
+
+        try {
+            for (Integer index : walletIds) {
+                String address = Encoding.defaultPubKeyEncoding(walletContainer.get(index - 1).getPublic().getEncoded());
+                writer.println(index + ". " + address);
+                writer.flush();
+                List<Transaction> transactions = bitcoinNodeAPIService.getTransactions(event.getTransactionQueryType(), walletContainer.get(index - 1).getPublic());
+
+                // given address has no transactions
+                if (transactions.isEmpty()) {
+                    writer.println("  (no transactions)");
+                    writer.flush();
+                }
+
+                displayTransactions(transactions, address, event.isColoredResponse());
+            }
+        } catch (ExternalNodeInvalidHTTPCodeException e) {
+            writer.println("Invalid http code: " + e.getHttpCode());
+            writer.flush();
+        }
+    }
+
+    /**
+     * Utility method that displays given transactions into the console
+     * @param transactions specifies a list of transactions to display
+     * @param walletAddress specifies the current wallet address to use
+     * @param isColored specifies if the output should be colored or not
+     */
+    private void displayTransactions(List<Transaction> transactions, String walletAddress, boolean isColored) {
+        for (Transaction transaction : transactions) {
+            TransactionOutput output;
+            // classified as outgoing transaction
+            if (transaction.getSenderPublicKey().equals(walletAddress) &&
+                    (output = findExternalRecipiantTransactionOutput(walletAddress, transaction)) != null) {
+                writer.println((isColored ? Colored.ANSI_RED : "") + "- " +
+                        walletAddress.substring(0, 5) +
+                        "..." +
+                        walletAddress.substring(walletAddress.length()-5) +
+                        " -> " +
+                        output.getReceiverPublicKey().substring(0, 5) +
+                        "..." +
+                        output.getReceiverPublicKey().substring(output.getReceiverPublicKey().length()-5) +
+                        " " +
+                        df.format(output.getAmount()) +
+                        " BTC" + (isColored ? Colored.ANSI_RESET : ""));
+            }
+            // classified as incoming transactions
+            else if (!transaction.getSenderPublicKey().equals(walletAddress) &&
+                    (output = findWalletAddressRecipiantTransactionOutput(walletAddress, transaction)) != null) {
+                writer.println((isColored ? Colored.ANSI_GREEN : "") + "- " +
+                        transaction.getSenderPublicKey().substring(0, 5) +
+                        "..." +
+                        transaction.getSenderPublicKey().substring(transaction.getSenderPublicKey().length()-5) +
+                        " -> " +
+                        walletAddress.substring(0, 5) +
+                        "..." +
+                        walletAddress.substring(walletAddress.length()-5) +
+                        " " +
+                        df.format(output.getAmount()) +
+                        " BTC" + (isColored ? Colored.ANSI_RESET : ""));
+            }
+            writer.flush();
+        }
+    }
+
+    /**
+     * Utility method which checks that each wallet id in provided set is within walletContainer bounds
+     * @param walletIds specifies the provided set of indices to check for
+     * @return true if wallet indices are within bounds, else otherwise
+     */
+    private boolean checkWalletIdBounds(Set<Integer> walletIds){
+        for (Integer indeks : walletIds) {
+            if (indeks - 1 >= walletContainer.size()) {
+                writer.println("Invalid wallet ID " + indeks);
+                writer.flush();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Utility function that checks walletIds payload and if required returns a set of all indices for all wallets
+     * @param payload specifies the provided wallet ID payload
+     * @return an equivalent set to the argument if the payload is not empty, otherwise it returns a set with all possible wallet ID indices
+     */
+    private Set<Integer> getWalletIds(Set<Integer> payload) {
+        if (!payload.isEmpty())
+            return payload;
+
+        Set<Integer> walletIds = new HashSet<>();
+        for (int i = 0; i < walletContainer.size(); i++)
+            walletIds.add(i + 1);
+
+        return walletIds;
+    }
+
+    /**
+     * Utility function that finds the required sum of unspent transaction outputs necessary to make a transaction
+     * @param utxos specifies a list of unspent transaction outputs
+     * @param amountToSend specifies the amount of tokens to send under current transactions
+     * @return
+     */
     private List<TransactionOutput> findMinimalAmountOfUTXOsForTransactions(List<TransactionOutput> utxos, BigDecimal amountToSend) {
         utxos.sort(Comparator.comparing(TransactionOutput::getAmount));
 
@@ -236,63 +352,12 @@ public class WalletEventListener {
         return utxoInputs;
     }
 
-    @Subscribe
-    public void handleTransactionsEvent(TransactionsEvent event) {
-        Set<Integer> walletIds = getWalletIds(event.getWalletIds());
-        if (!checkWalletIdBounds(walletIds))
-            return;
-
-        try {
-            for (Integer index : walletIds) {
-                String address = Encoding.defaultPubKeyEncoding(walletContainer.get(index - 1).getPublic().getEncoded());
-                writer.println(index + ". " + address);
-                writer.flush();
-                List<Transaction> transactions = bitcoinNodeAPIService.getTransactions(event.getTransactionQueryType(), walletContainer.get(index - 1).getPublic());
-
-                if (transactions.isEmpty()) {
-                    writer.println("  (no transactions)");
-                    writer.flush();
-                }
-
-                for (Transaction transaction : transactions) {
-                    TransactionOutput output;
-                    if (transaction.getSenderPublicKey().equals(address) &&
-                            (output = findExternalRecipiantTransactionOutput(address, transaction)) != null) {
-                        writer.println((event.isColoredResponse() ? Colored.ANSI_RED : "") + "- " +
-                                address.substring(0, 5) +
-                                "..." +
-                                address.substring(address.length()-5) +
-                                " -> " +
-                                output.getReceiverPublicKey().substring(0, 5) +
-                                "..." +
-                                output.getReceiverPublicKey().substring(output.getReceiverPublicKey().length()-5) +
-                                " " +
-                                df.format(output.getAmount()) +
-                                " BTC" + (event.isColoredResponse() ? Colored.ANSI_RESET : ""));
-                    } else if (!transaction.getSenderPublicKey().equals(address) &&
-                            (output = findWalletAddressRecipiantTransactionOutput(address, transaction)) != null) {
-                        writer.println((event.isColoredResponse() ? Colored.ANSI_GREEN : "") + "- " +
-                                transaction.getSenderPublicKey().substring(0, 5) +
-                                "..." +
-                                transaction.getSenderPublicKey().substring(transaction.getSenderPublicKey().length()-5) +
-                                " -> " +
-                                address.substring(0, 5) +
-                                "..." +
-                                address.substring(address.length()-5) +
-                                " " +
-                                df.format(output.getAmount()) +
-                                " BTC" + (event.isColoredResponse() ? Colored.ANSI_RESET : ""));
-                    }
-                    writer.flush();
-                }
-            }
-        } catch (ExternalNodeInvalidHTTPCodeException e) {
-            writer.println("Invalid http code: " + e.getHttpCode());
-            writer.flush();
-        }
-    }
-
-
+    /**
+     * Utility method that is used to search for a transaction output in which the receiver is some external wallet
+     * @param walletAddress specifies current wallet's address
+     * @param transaction specifies the transaction object in which to search for outputs
+     * @return a transaction output object representing the output, in which the receiver address is external or null if no such transaction output exists
+     */
     private TransactionOutput findExternalRecipiantTransactionOutput(String walletAddress, Transaction transaction) {
         for (TransactionOutput output : transaction.getOutputs()) {
             if (!output.getReceiverPublicKey().equals(walletAddress)) {
@@ -301,6 +366,13 @@ public class WalletEventListener {
         }
         return null;
     }
+
+    /**
+     * Utility method that is used to search for a transaction output in which the receiver is the given wallet address
+     * @param walletAddress specifies the wallet address to use for recipientAddress filtering
+     * @param transaction specifies the transaction object whose outputs to search
+     * @return a transaction output object representing the output, in which the receiver address is the provided address or null if no such transaction output exists
+     */
     private TransactionOutput findWalletAddressRecipiantTransactionOutput(String walletAddress, Transaction transaction) {
         for (TransactionOutput output : transaction.getOutputs()) {
             if (output.getReceiverPublicKey().equals(walletAddress)) {

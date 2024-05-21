@@ -11,6 +11,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -41,7 +42,7 @@ public class CmdUserInteraction extends PasswordConsumer implements Runnable {
     }
 
     @Option(names = {"-w", "--pick-wallet"}, required = false, arity = "1..n")
-    private Set<Integer> walletIds;
+    private Set<Integer> walletIds = new HashSet<>();
 
     // injected dependencies
     private final LineReader reader;

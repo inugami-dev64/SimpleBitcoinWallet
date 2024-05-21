@@ -31,7 +31,6 @@ public class BitcoinNodeAPIServiceImpl implements BitcoinNodeAPIService {
         return headers;
     }
 
-//  /blockchain/transactions?pubKey=avalik-voti&type=ALL|RECEIVED|SENT
     @Override
     public List<Transaction> getTransactions(TransactionQueryType queryType, PublicKey publicKey) throws ExternalNodeInvalidHTTPCodeException {
         final String endPointURI = "/blockchain/transactions?pubKey=" +
@@ -97,13 +96,16 @@ public class BitcoinNodeAPIServiceImpl implements BitcoinNodeAPIService {
     public Transaction brodcastTransaction(Transaction transaction) throws ExternalNodeInvalidHTTPCodeException, ExternalNodeValidationException {
         final String endPointURI = "/blockchain/send";
         try {
-            HttpResponse<byte[]> response = httpRequestService.request(endPointURI, HttpRequestMethod.POST, getHeaders());
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(transaction);
+
+            HttpResponse<byte[]> response = httpRequestService.request(endPointURI, HttpRequestMethod.POST, getHeaders(), json.getBytes(StandardCharsets.UTF_8));
             if (response.statusCode() > 299 && response.statusCode() != 400)
                 throw new ExternalNodeInvalidHTTPCodeException("Status code larger than 299", response.statusCode());
-            ObjectMapper objectMapper = new ObjectMapper();
+
             if (response.statusCode() == 400){
                 ValidationErrorResponse validationErrorResponse = objectMapper.readValue(response.body(), ValidationErrorResponse.class);
-                throw new ExternalNodeValidationException("Validation error has occurred", validationErrorResponse);
+                throw new ExternalNodeValidationException("Transaction validation error has occurred", validationErrorResponse);
             }
             return objectMapper.readValue(response.body(), Transaction.class);
 
