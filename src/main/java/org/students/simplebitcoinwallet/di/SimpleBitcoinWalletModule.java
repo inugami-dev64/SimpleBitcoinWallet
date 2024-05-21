@@ -26,6 +26,8 @@ import org.students.simplebitcoinwallet.service.impl.HTTPRequestServiceImpl;
 import org.students.simplebitcoinwallet.service.impl.RijndaelBlockCipherService;
 import org.students.simplebitcoinwallet.ui.event.listener.WalletEventListener;
 import org.students.simplebitcoinwallet.ui.interactive.RootCommand;
+import org.students.simplebitcoinwallet.util.LinkedListSecureContainer;
+import org.students.simplebitcoinwallet.util.SecureContainer;
 import picocli.CommandLine;
 import picocli.shell.jline3.PicocliCommands;
 import picocli.shell.jline3.PicocliCommands.PicocliCommandsFactory;
@@ -34,6 +36,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.KeyPair;
 import java.util.function.Supplier;
 
 /**
@@ -60,9 +63,8 @@ public class SimpleBitcoinWalletModule extends AbstractModule {
     }
 
     @Provides
-    public BitcoinNodeAPIService provideBitcoinNodeAPIService(@Named("endpoint") String baseURL,
-                                                       HTTPRequestService httpRequestService) {
-        return new BitcoinNodeAPIServiceImpl(baseURL,httpRequestService);
+    public BitcoinNodeAPIService provideBitcoinNodeAPIService(HTTPRequestService httpRequestService) {
+        return new BitcoinNodeAPIServiceImpl(httpRequestService);
     }
 
     @Provides
@@ -71,26 +73,29 @@ public class SimpleBitcoinWalletModule extends AbstractModule {
     }
 
     @Provides
-    public WalletEventListener provideWalletEventListener(PrintWriter writer,
-                                                          BlockCipherService blockCipherService,
-                                                          AsymmetricCryptographyService asymmetricCryptographyService,
-                                                          BitcoinNodeAPIService bitcoinNodeAPIService) {
-        return new WalletEventListener(writer,
-                blockCipherService,
-                asymmetricCryptographyService,
-                bitcoinNodeAPIService);
+    @Singleton
+    public SecureContainer<KeyPair> provideSecureContainer(BlockCipherService blockCipherService) {
+        return new LinkedListSecureContainer<>(blockCipherService);
     }
 
     @Provides
+    @Singleton
+    public WalletEventListener provideWalletEventListener(PrintWriter writer,
+                                                          AsymmetricCryptographyService asymmetricCryptographyService,
+                                                          BitcoinNodeAPIService bitcoinNodeAPIService,
+                                                          SecureContainer<KeyPair> walletContainer) {
+        return new WalletEventListener(writer,
+                asymmetricCryptographyService,
+                bitcoinNodeAPIService,
+                walletContainer);
+    }
+
+    @Provides
+    @Singleton
     public EventBus provideEventBus(WalletEventListener walletEventListener) {
         EventBus eventBus = new EventBus();
         eventBus.register(walletEventListener);
         return eventBus;
-    }
-
-    @Provides @Named("Passphrase")
-    public String providePassphrase() {
-        return PassphraseFactory.getPassphrase();
     }
 
     @Provides

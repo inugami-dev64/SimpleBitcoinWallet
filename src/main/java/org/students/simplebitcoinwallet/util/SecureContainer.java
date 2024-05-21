@@ -1,8 +1,11 @@
 package org.students.simplebitcoinwallet.util;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.students.simplebitcoinwallet.service.BlockCipherService;
 
 import java.io.Externalizable;
+import java.io.File;
 
 /**
  * Secure (wrapper) container class which can be serialized in an encrypted form.<br>
@@ -10,14 +13,18 @@ import java.io.Externalizable;
  */
 public abstract class SecureContainer<T> implements Externalizable, Iterable<T> {
     // internal state variables
+    @Setter
+    @Getter
+    protected File file;
+
+    @Setter
     protected String passphrase = null;
 
     // injected dependencies
     protected final BlockCipherService blockCipherService;
 
-    public SecureContainer(BlockCipherService blockCipherService, String passphrase) {
+    public SecureContainer(BlockCipherService blockCipherService) {
         this.blockCipherService = blockCipherService;
-        this.passphrase = passphrase;
     }
 
     /**

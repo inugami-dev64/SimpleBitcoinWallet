@@ -5,7 +5,9 @@ import com.google.inject.Inject;
 import org.jline.reader.LineReader;
 import org.students.simplebitcoinwallet.ui.event.NewWalletAddressEvent;
 import org.students.simplebitcoinwallet.ui.event.SaveContainerEvent;
+import org.students.simplebitcoinwallet.ui.event.WalletFileCreationEvent;
 import org.students.simplebitcoinwallet.util.SecureContainer;
+import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -19,7 +21,7 @@ import java.security.KeyPair;
 @Command(name = "create", description = "Create a new wallet")
 public class WalletCreationUserInteraction extends PasswordConsumer implements Runnable {
     // internal state variables
-    @Option(names = "-f", description = "Wallet file path")
+    @Parameters(index = "0", description = "Wallet file path")
     private File file;
 
     @Option(names = "-P", description = "Wallet decryption passphrase")
@@ -40,7 +42,7 @@ public class WalletCreationUserInteraction extends PasswordConsumer implements R
     @Override
     public void run() {
         password = verifyProvidedPassword(reader, "Password:", password);
-        eventBus.post(new NewWalletAddressEvent(password, true));
-        eventBus.post(new SaveContainerEvent(file));
+        eventBus.post(new WalletFileCreationEvent(file, password, true));
+        eventBus.post(new SaveContainerEvent());
     }
 }

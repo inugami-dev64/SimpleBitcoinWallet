@@ -2,10 +2,7 @@ package org.students.simplebitcoinwallet.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.students.simplebitcoinwallet.data.HttpRequestMethod;
-import org.students.simplebitcoinwallet.data.Transaction;
-import org.students.simplebitcoinwallet.data.TransactionQueryType;
-import org.students.simplebitcoinwallet.data.ValidationErrorResponse;
+import org.students.simplebitcoinwallet.data.*;
 import org.students.simplebitcoinwallet.exception.ExternalNodeInvalidHTTPCodeException;
 import org.students.simplebitcoinwallet.exception.ExternalNodeValidationException;
 import org.students.simplebitcoinwallet.service.BitcoinNodeAPIService;
@@ -16,18 +13,16 @@ import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
+import java.security.PublicKey;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class BitcoinNodeAPIServiceImpl implements BitcoinNodeAPIService {
-
-    private final String baseURL;
     private final HTTPRequestService httpRequestService;
 
-    public BitcoinNodeAPIServiceImpl(String baseURL, HTTPRequestService httpRequestService) {
-        this.baseURL = baseURL;
+    public BitcoinNodeAPIServiceImpl(HTTPRequestService httpRequestService) {
         this.httpRequestService = httpRequestService;
     }
     private Map<String, String> getHeaders() {
@@ -39,12 +34,12 @@ public class BitcoinNodeAPIServiceImpl implements BitcoinNodeAPIService {
 
 //  /blockchain/transactions?pubKey=avalik-voti&type=ALL|RECEIVED|SENT
     @Override
-    public List<Transaction> getTransactions(TransactionQueryType queryType, KeyPair keyPair) throws ExternalNodeInvalidHTTPCodeException {
-        String endPointURL = baseURL + "/blockchain/transactions?pubKey=" +
-                Encoding.defaultPubKeyEncoding(keyPair.getPublic().getEncoded()) +
+    public List<Transaction> getTransactions(TransactionQueryType queryType, PublicKey publicKey) throws ExternalNodeInvalidHTTPCodeException {
+        final String endPointURI = "/blockchain/transactions?pubKey=" +
+                Encoding.defaultPubKeyEncoding(publicKey.getEncoded()) +
                 "&type=" + queryType.toString();
         try {
-            HttpResponse<byte[]> response = httpRequestService.request(endPointURL, HttpRequestMethod.GET, getHeaders());
+            HttpResponse<byte[]> response = httpRequestService.request(endPointURI, HttpRequestMethod.GET, getHeaders());
             if (response.statusCode() > 299)
                 throw new ExternalNodeInvalidHTTPCodeException("Status code is larger than 299", response.statusCode());
             ObjectMapper objectMapper = new ObjectMapper();
@@ -56,10 +51,25 @@ public class BitcoinNodeAPIServiceImpl implements BitcoinNodeAPIService {
     }
 
     @Override
-    public boolean status() {
-        String endPointURL = baseURL + "/blockchain/status";
+    public List<TransactionOutput> getUnspentTransactionOutputs(PublicKey publicKey) throws ExternalNodeInvalidHTTPCodeException {
+        final String endpointURI = "/blockchain/utxo?pubKey=" + Encoding.defaultPubKeyEncoding(publicKey.getEncoded());
         try {
-            HttpResponse<byte[]> response = httpRequestService.request(endPointURL, HttpRequestMethod.GET, getHeaders());
+            HttpResponse<byte[]> response = httpRequestService.request(endpointURI, HttpRequestMethod.GET, getHeaders());
+            if (response.statusCode() > 299)
+                throw new ExternalNodeInvalidHTTPCodeException("Status code is larger than 299", response.statusCode());
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.readValue(response.body(), new TypeReference<List<TransactionOutput>>() {});
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean status() {
+        final String endPointURI = "/blockchain/status";
+        try {
+            HttpResponse<byte[]> response = httpRequestService.request(endPointURI, HttpRequestMethod.GET, getHeaders());
             if (response.statusCode() > 299)
                 return false;
             ObjectMapper objectMapper = new ObjectMapper();
@@ -72,9 +82,9 @@ public class BitcoinNodeAPIServiceImpl implements BitcoinNodeAPIService {
 
     @Override
     public LocalDateTime serverTime() throws ExternalNodeInvalidHTTPCodeException {
-        String endPointURL = baseURL + "/blockchain/time";
+        final String endPointURI = "/blockchain/time";
         try {
-            HttpResponse<byte[]> response = httpRequestService.request(endPointURL, HttpRequestMethod.GET, getHeaders());
+            HttpResponse<byte[]> response = httpRequestService.request(endPointURI, HttpRequestMethod.GET, getHeaders());
             if (response.statusCode() > 299)
                 throw new ExternalNodeInvalidHTTPCodeException("Status code larger than 299", response.statusCode());
             String time = new String(response.body(), StandardCharsets.UTF_8);
@@ -86,9 +96,9 @@ public class BitcoinNodeAPIServiceImpl implements BitcoinNodeAPIService {
 
     @Override
     public Transaction brodcastTransaction(Transaction transaction) throws ExternalNodeInvalidHTTPCodeException, ExternalNodeValidationException {
-        String endPointURL = baseURL + "/blockchain/send";
+        final String endPointURI = "/blockchain/send";
         try {
-            HttpResponse<byte[]> response = httpRequestService.request(endPointURL, HttpRequestMethod.GET, getHeaders());
+            HttpResponse<byte[]> response = httpRequestService.request(endPointURI, HttpRequestMethod.POST, getHeaders());
             if (response.statusCode() > 299 && response.statusCode() != 400)
                 throw new ExternalNodeInvalidHTTPCodeException("Status code larger than 299", response.statusCode());
             ObjectMapper objectMapper = new ObjectMapper();

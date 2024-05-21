@@ -8,8 +8,8 @@ import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.UserInterruptException;
 import org.jline.terminal.Terminal;
-import org.students.simplebitcoinwallet.di.PassphraseFactory;
 import org.students.simplebitcoinwallet.ui.event.InitializeContainerEvent;
+import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -18,8 +18,8 @@ import java.io.File;
 @Command(name = "interactive", description = "Open wallet in interactive console mode")
 public class InteractiveUserInteraction extends PasswordConsumer implements Runnable {
     // internal state variables
-    @Option(names = "-f", description = "Wallet file path", required = true)
-    private File filename;
+    @Parameters(index = "0", description = "Wallet file path")
+    private File file;
 
     @Option(names = "-P", description = "Wallet password", required = false)
     private String password;
@@ -40,12 +40,10 @@ public class InteractiveUserInteraction extends PasswordConsumer implements Runn
 
     public void run() {
         password = verifyProvidedPassword(lineReader, "Password:", password);
-        PassphraseFactory.setPassphrase(password);
-
-        eventBus.post(new InitializeContainerEvent(filename, password));
+        eventBus.post(new InitializeContainerEvent(file, password));
 
         AnsiConsole.systemInstall();
-        final String prompt = "[" + filename + "]> ";
+        final String prompt = "[" + file.getName() + "]> ";
 
         String line;
         while (true) {
