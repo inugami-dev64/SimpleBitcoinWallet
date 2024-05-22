@@ -283,17 +283,30 @@ public class WalletEventListener {
             // classified as incoming transactions
             else if (!transaction.getSenderPublicKey().equals(walletAddress) &&
                     (output = findWalletAddressRecipiantTransactionOutput(walletAddress, transaction)) != null) {
-                writer.println((isColored ? Colored.ANSI_GREEN : "") + "- " +
-                        transaction.getSenderPublicKey().substring(0, 5) +
-                        "..." +
-                        transaction.getSenderPublicKey().substring(transaction.getSenderPublicKey().length()-5) +
-                        " -> " +
-                        walletAddress.substring(0, 5) +
-                        "..." +
-                        walletAddress.substring(walletAddress.length()-5) +
-                        " " +
-                        df.format(output.getAmount()) +
-                        " BTC" + (isColored ? Colored.ANSI_RESET : ""));
+                if (transaction.getSenderPublicKey().length() >= 5) {
+                    writer.println((isColored ? Colored.ANSI_GREEN : "") + "+ " +
+                            transaction.getSenderPublicKey().substring(0, 5) +
+                            "..." +
+                            transaction.getSenderPublicKey().substring(transaction.getSenderPublicKey().length() - 5) +
+                            " -> " +
+                            walletAddress.substring(0, 5) +
+                            "..." +
+                            walletAddress.substring(walletAddress.length() - 5) +
+                            " " +
+                            df.format(output.getAmount()) +
+                            " BTC" + (isColored ? Colored.ANSI_RESET : ""));
+                }
+                else {
+                    writer.println((isColored ? Colored.ANSI_GREEN : "") + "+ " +
+                            transaction.getSenderPublicKey() +
+                            " -> " +
+                            walletAddress.substring(0, 5) +
+                            "..." +
+                            walletAddress.substring(walletAddress.length() - 5) +
+                            " " +
+                            df.format(output.getAmount()) +
+                            " BTC" + (isColored ? Colored.ANSI_RESET : ""));
+                }
             }
             writer.flush();
         }
